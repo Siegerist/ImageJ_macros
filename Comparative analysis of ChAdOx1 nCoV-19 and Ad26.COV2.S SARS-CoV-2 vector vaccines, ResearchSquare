@@ -1,0 +1,89 @@
+//IJ1 macro script from Michalik et al, "Comparative analysis of ChAdOx1 nCoV-19 and Ad26.COV2.S SARS-CoV-2 vector vaccines" https://www.researchsquare.com/article/rs-736157/v1 doi: 10.21203/rs.3.rs-736157/v1
+//This macro differentially quantifies particle densities in 2D single molecule scatterplots on and around molecular clusters, herein virions. 
+//C2 serves as a segmentation template, is blurred, segmented, binarized and exported to ROI manager. Particle densities in both channels are measured within the ROIs and in a banded ring around the ROIs
+//Established with Thunderstorm Scatterplot exported images with pixelsize of 3.174 nm/px acquired on a Zeiss Elyra PS.1. For detailed methods check: https://www.researchsquare.com/article/rs-736157/v1
+
+//empty ROI manager if full
+x = roiManager('count');
+if(x>0){
+roiManager("delete");}
+//Create single channel frames
+rename("Input");
+run("Duplicate...", "duplicate channels=1");
+run("Convert to Mask");
+rename("C1");
+selectImage("Input");
+run("Duplicate...", "duplicate channels=2");
+rename("C2");
+run("Convert to Mask");
+
+//gaussian blur
+selectImage("C2");
+run("Duplicate...", " ");
+rename("C2_blurred");
+run("Gaussian Blur...", "sigma=8");
+
+//Segment central particle
+setAutoThreshold("Default");
+setOption("BlackBackground", true);
+run("Convert to Mask");
+run("Convert to Mask");
+run("Analyze Particles...", "size=0.01-Infinity add");
+
+//Analyze C1 particles in central ROI
+selectImage("C1");
+n = roiManager('count');
+for (i = 0; i < n; i++) {
+    roiManager('select', i);
+    // process roi here
+run("Analyze Particles...", "summarize");
+}
+Table.rename("Summary", "C1_inside");
+//Analyze C2 particles in central ROI
+selectImage("C2");
+n = roiManager('count');
+for (i = 0; i < n; i++) {
+    roiManager('select', i);
+    // process roi here
+run("Analyze Particles...", "summarize");
+}
+Table.rename("Summary", "C2_inside");
+
+
+roiManager("deselect");
+roiManager("measure");
+Table.rename("Results", "Area_inside");
+
+//Segment periviral ROI
+n = roiManager('count');
+for (i = 0; i < n; i++) {
+    roiManager('select', i);
+    // process roi here
+run("Enlarge...", "enlarge=0.05");
+run("Make Band...", "band=0.5");
+roiManager("Update");
+}
+
+//Analyze C1 particles periviral ROI
+selectImage("C1");
+n = roiManager('count');
+for (i = 0; i < n; i++) {
+    roiManager('select', i);
+    // process roi here
+run("Analyze Particles...", "summarize");
+}
+Table.rename("Summary", "C1_out");
+//Analyze C2 particles in periviral ROI
+selectImage("C2");
+n = roiManager('count');
+for (i = 0; i < n; i++) {
+    roiManager('select', i);
+    // process roi here
+run("Analyze Particles...", "summarize");
+}
+Table.rename("Summary", "C2_out");
+
+
+roiManager("deselect");
+roiManager("measure");
+Table.rename("Results", "Area_outside");
