@@ -1,9 +1,9 @@
 //This is the IJ1 macro code for the scoMorphoFISH preprint: https://www.biorxiv.org/content/10.1101/2021.09.27.461916v1
-//Define source directories 															//before you can start: 
-   print("Select directory of the stacks");												//install plugins: DeepImageJ, CSBDeep, StarDist, ResultstoExcel, RS-FISH
+//Define source directories 													//before you can start: 
+   print("Select directory of the stacks");											//install plugins: DeepImageJ, CSBDeep, StarDist, ResultstoExcel, RS-FISH
    dir = getDirectory("Select a Source Directory");										//install U-Net for Glom segmentation in DeepImageJ
-   close("Log");																		//fill in the correct directory for trained StarDist in ll. 368, 446, 527
-//location and name of saved excel table
+   close("Log");														//fill in the correct directory for trained StarDist in ll. 368, 446, 527
+//location and name of saved excel table											// the trained StarDist network can be found on Zenodo: 10.5281/zenodo.5543722
    print("Select the file name");
    filename = getDirectory("Select the file name");
    name2 = File.getNameWithoutExtension(filename);
